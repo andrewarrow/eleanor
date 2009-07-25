@@ -1,0 +1,167 @@
+
+                             _A TALE OF NON SEQUITURS_
+                             Fenwick Stufflebeam
+                             123 Millicent Kenton Lane
+                             Hollywood, CA  90210
+                             (555) 555-1337
+                             fstufflebeam@hmail.com
+
+    FADE IN:
+
+EXT. FOREST CLEARING - NIGHT
+
+A clear, starry night.  A milky full moon hangs high in the sky.  Somewhere an owl hoots.
+
+The bushes rustle.  A dirtied girl pushes her way through the greenery, leaves and twigs slapping her face.  Her name is ELEANOR.  She carries a laptop computer under her arm.
+
+                               ELEANOR
+                          (calling)
+                      Why!  _Oh, why_!
+
+Crickets.  Eleanor sits on a nearby tree stump, head on hands.
+
+Suddenly a tiny little man with shoulder-length brown hair scampers out of the trees.  He is WHY THE LUCKY STIFF.  He has a high-pitched voice, as if he has been inhaling helium.
+
+                               WHY THE LUCKY STIFF
+                      Here I am!
+
+                               ELEANOR
+                      Oh, thank God.
+
+Why the Lucky Stiff jumps up on Eleanor's knee and produces a tiny flute.  He plays a tune as he dances a little jig.
+
+                               WHY THE LUCKY STIFF
+                      Reese's Pieces and Old Navy fleeces!  Norway has rakfisk but Finland has cheeses!
+
+                               ELEANOR
+                      Uh, OK.
+                          (opening her laptop)
+                      Listen, could you tell me how to use this thing?
+
+                               WHY THE LUCKY STIFF
+                      Ding dong!
+
+He scurries to a tree and beckons Eleanor to follow.
+
+                                WHY THE LUCKY STIFF
+                          (pointing at tree)
+                      _Rules_ here there be!
+
+                               ELEANOR
+                      Are you going to keep talking like that?
+
+    WHY THE LUCKY STIFF
+    Creamy ground beef!
+
+With his little hand he pulls back a bough to reveal a carving on the trunk that reads:
+
+    "Two blank lines before scene headings and montages.  One blank line before all else except dialogs and parentheticals.  Spaces before character cues, dialog, parentheticals, transitions, inserts.  No newlines in paragraphs.  Two spaces between sentences."
+
+    ELEANOR
+    I don't understand.
+
+    WHY THE LUCKY STIFF
+    Plain text!  Whoozits.
+
+    ELEANOR
+    What?
+
+    WHY THE LUCKY STIFF
+    You type, you type.  The words flow like a sinking sun in a bathtub full of green jell-o.
+
+He hops onto Eleanor's computer and by dancing on its keys types all that has transpired before this moment, in the format prescribed by the tree.  Then he runs the command:
+
+    "ruby eleanor example.txt"
+
+A beautiful PDF appears on Eleanor's computer.
+
+    ELEANOR
+    Oh!
+
+SUDDENLY, WHY THE LUCKY STIFF
+
+turns on his heels and sprints into the trees.
+
+ELEANOR
+
+drops her laptop in the commotion but picks it up and follows in hot pursuit deep into the woods.
+
+ELEANOR'S P.O.V. - TREE BRANCHES
+
+slap her in the face.
+
+    ELEANOR
+    (calling)
+    I'm not writing an action movie!  This is supposed to be a quirky independent!
+
+
+SERIES OF SHOTS - ELEANOR CHASES WHY THE LUCKY STIFF
+
+A) Dodging branches and roots in the forest.
+
+B) Trudging through a thick swamp.
+
+C) Jumping across rooftops in a large city as cars sit stuck in traffic below.
+
+D) Back into the dark forest.
+
+    DISSOLVE TO:
+
+
+INT. HOLLOW TREE - NIGHT
+
+A storybook gnomish home.  Eleanor stumbles in, out of breath.  Why the Lucky Stiff sits in a tiny rocking chair next to the fireplace, smoking a long pipe.
+
+    ELEANOR
+    (wheezing)
+    Jesus.
+    (pausing to look around)
+    So this is where you live.
+
+    WHY THE LUCKY STIFF
+    Here I be.  Tinkle tops and lemon drops.
+
+    ELEANOR
+    Look, I have more questions.
+
+    WHY THE LUCKY STIFF
+    Let me tell you a story.
+
+BEGIN FLASHBACK:
+
+
+INT. PIGGLY WIGGLY - DAY
+
+Why the Lucky Stiff pushes a diminutive shopping cart.
+
+    WHY THE LUCKY STIFF
+    (to himself)
+    Crackers.  Soy beans.  Hamburger patties.  Sunshine rainbows and kitty cat kisses.  Red-letter bibles and hose for the missus.  Hey ho, yeah?  What's all this, now?  Bean sprouts from China and milk from a cow.
+
+END FLASHBACK.
+
+
+INT. HOLLOW TREE - NIGHT
+
+Eleanor is exasperated.
+
+    ELEANOR
+    You're a nice guy, and you sure do know a lot, but I can't understand anything you say.
+
+    WHY THE LUCKY STIFF
+    Hey, but look!  My dialog was split in twain!
+
+    ELEANOR
+    No, it wasn't.
+
+    WHY THE LUCKY STIFF
+    No, no, no, not in the plain text.  In the PDF, yo!
+
+    ELEANOR
+    But I haven't written anything.
+
+Why the Lucky Stiff pads over to Eleanor, who places her computer on the ground.  He types in everything that has transpired so far except for what he had typed previously.
+
+INSERT - ELEANOR'S COMPUTER SCREEN, A BEAUTIFUL PDF
+
+    FADE OUT.

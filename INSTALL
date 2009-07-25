@@ -1,0 +1,43 @@
+If you just want to run Eleanor from the command line and aren't interested
+in using it from other Ruby programs, you don't have to install it.  Just
+download the tarball or zip package from http://rubyforge.org/projects/eleanor,
+extract it to some directory, and off you go.
+
+= Running without Installing
+
+Extract your package and
+
+  cd eleanor-1.0.0
+  ruby bin/eleanor screenplay.txt
+
+=== Building the Example
+
+An example plain text screenplay is located in the examples directory in the
+package.  To generate the PDF, run
+
+  rake examples
+
+This example can also be found at http://eleanor.rubyforge.org/example.txt.
+
+
+= Installing through RubyGems
+
+  gem install eleanor
+
+Or, manually download the gem from http://rubyforge.org/projects/eleanor and
+
+  gem install eleanor-1.0.0.gem
+
+
+= Installing to site_ruby
+
+From your extracted package directory,
+
+  rake install
+
+Or, equivalently,
+
+  ruby setup.rb
+
+This installation method uses the setup.rb script by
+{Minero Aoki}[http://i.loveruby.net/en/projects/setup].

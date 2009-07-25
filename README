@@ -1,0 +1,439 @@
+= Eleanor: Screenplay Formatting
+
+Eleanor is a Ruby script and accompanying library for formatting speculative
+screenplays.  It parses plain text written in a simple format and outputs pretty
+PDF that conforms to standard rules of screenplay layout.  Eleanor's primary
+goal is to create PDF that is indistinguishable from PDF produced by professional
+screenwriting software such as {Final Draft}[http://www.finaldraft.com].
+
+See an {example PDF}[http://eleanor.rubyforge.org/example.pdf] and the
+{plain text file}[http://eleanor.rubyforge.org/example.txt] that generated it.
+
+
+== What It Does
+
+* Spec scripts.
+* Follows standard rules of screenplay formatting.  But if you disagree, you
+  can modify those rules.
+* Correctly breaks paragraphs across pages.  Paragraphs are broken between
+  sentences, not in mid-sentence.  Orphan and widow sentence constraints are
+  respected, and orphan and widow line constraints can even be set.
+  Keep-with-next constraints are respected.  Dialog is correctly broken and
+  continued.
+* Precise configuration.  Constraints such as margins, keep-with-nexts, and
+  orphan and widow limits can be set on a dynamic and class-by-class basis for
+  each class of paragraph.  Screenplay-wide options like font, line height,
+  character spacing, and page size and margins can also be customized.
+* Easy configuration.  Options are stored in YAML format in their own file.
+* Extension.  By default Eleanor outputs to PDF using
+  libHaru[http://libharu.org], but you can write a backend to target anything
+  else, like {PDF::Writer}[http://ruby-pdf.rubyforge.org/pdf-writer], XML,
+  XSL-FO, Postscript, RTF, the screen, a socket, whatever.  Or if you don't
+  like Eleanor's plain text screenplay format, you can write your own parser.
+* Can be used as a command-line app or as part of a larger Ruby program.
+* Multiple title pages.
+* Text underlining.  Emphasis in screenplays is shown by underlining, which
+  you can do by surrounding text in underscores:
+
+    You can underline a single _word_, or _many words at once._
+
+
+== What It Doesn't
+
+* WYSIWYG editing.
+* Side-by-side simultaneous dialog.
+* Production stuff, like shooting scripts, scene numbering, rewrites, revisions.
+* Sitcom scripts, stageplays, etc.  Although if it's just a matter of line
+  spacing, margins, or font, you might be able to do it by modifying Eleanor's
+  configuration.
+* Spell check.  You'll have to use your text editor.
+
+
+== Example Usage
+
+=== From the Command Line
+
+  eleanor oscarwinner.txt
+  eleanor -o turnsoutitsucks.pdf oscarwinner.txt
+  eleanor -c config.yaml -o turnsoutitsucks.pdf oscarwinner.txt
+
+=== From Ruby
+
+  Eleanor.load_config('config.yaml')
+  screenplay= Eleanor.parse('oscarwinner.txt')
+  if screenplay
+    screenplay.paginate!
+    screenplay.write_to_paper!
+    screenplay.save_paper('turnsoutitsucks.pdf')
+  else
+    abort 'parsing failed'
+  end
+
+
+== Requirements
+
+* libHaru[http://libharu.org] 2.1.0 for PDF output
+
+For your convenience the parser (which is just Ruby code) is included already
+built in the package, but if you want to rebuild it or create your own, you will
+also need
+
+* Ragel[http://research.cs.queensu.ca/~thurston/ragel/] 6.0
+
+Older versions of each may work; I haven't tried.  Both play well with Ruby out
+of the box.
+
+
+== How It Works
+
+You might say Eleanor follows the model-view-controller design pattern.
+Here's Eleanor's pipeline, which is encapsulated by the Eleanor::Screenplay
+class:
+
+1. Parsing:  Eleanor parses a plain text screenplay (the model) and
+   creates a list of Eleanor::Paragraph objects.  See file src/ragel/parser.rl.
+2. Pagination:  Eleanor creates a list of Eleanor::Page objects based
+   on the list of paragraphs and their constraints.
+3. Output:  Eleanor's backend squirts out a nice representation of the
+   pages, a PDF by default (the view).  See file lib/eleanor/hpdfpaper.rb.
+
+Eleanor's modular design makes it easy to drop in your own parser or backend.
+If you want.
+
+
+== Plain Text Screenplay Format
+
+Think "Markdown[http://daringfireball.net/projects/markdown/] for screenplays."
+Eleanor's plain text format mimics the conventional screenplay format minus
+page breaks and all the constraints that make screenplay formatting a pain.
+The philosophy here is to make your plain text screenplay perfectly nice and
+readable on its own, even were it not to be parsed and massaged into a
+pretty PDF.
+
+See an {example file}[http://eleanor.rubyforge.org/example.txt].  This file is
+also available at examples/example.txt in the package.  (Note: The file uses Unix
+line endings.  You can use Windows line endings in your screenplays, no problem,
+but when viewing this particular example on Windows, use a decent text editor.
+WordPad can translate the line endings, but Notepad won't.)
+
+=== Types of Paragraphs
+
+By "paragraph," I mean an element of the screenplay such as a scene heading, slug
+line, character cue, etc.  Eleanor supports the following types of paragraphs:
+
+* Scene headings
+* Slug lines
+* Action/description
+* Character cues
+* Parentheticals
+* Dialog
+* Montages/series of shots
+* Inserts (e.g., text to be shown onscreen)
+* Transitions
+
+Of course you can do title pages, too, as many as you want in one screenplay,
+with as much or as little info as you want in each one.
+
+=== To Make a Long Story Short
+
+The basic rules of the plain text format are as follows.  See the Grammar section
+for a full grammar.
+
+* Sentences must be separated by (at least) two spaces, not one.
+* One line per paragraph.  In other words, turn on your text editor's word
+  wrap or soft breaks.  Newlines are not allowed inside a paragraph.
+* Two blank lines (at least) before scene headings and montages (except the very
+  first scene heading if it's preceded by a transition, in which case one blank
+  line may be used).
+* One blank line before everything else except dialog and parentheticals, which
+  must have no blank lines before them.
+* Character cues, parentheticals, dialog, transitions, and inserts must be
+  preceded by horizontal space.  By how much is your choice.
+* Other paragraphs must not be preceded by any horizontal space.
+* Scene headings must be succeeded by action.
+* Slug lines must be in all caps.
+* Transitions must be in all caps and end in either a colon (":") or a period
+  (".").
+* Items in montages/series of shots must be preceded by a capital letter, a
+  right parenthesis, and at least one space, e.g., "A) ".
+* Title pages are specified before anything else, but they don't have to be
+  specified at all.  A title page consists of a series of consecutive lines,
+  where each line is preceded by horizontal space.  (By how much is your
+  choice.)  The first line is the title and is mandatory if the title page is
+  specified.  The next line is the author and is optional.  The remaining lines,
+  of which there may be a varying number, are the author's contact information.
+  Multiple title pages may be specified.  At least one blank line must follow
+  each title page specification.
+
+=== Grammar
+
+  screenplay      := trailer* title_page* (transition trailer*)? (scene | montage)*
+
+  scene           := scene_heading action (action | character | slug_line | insert)* transition? trailer+
+
+  character       := character_cue (dialog | (dialog? (parenthetical dialog)+)) trailer
+
+  montage         := montage_heading montage_item+ transition? trailer+
+
+  action          := char schar* nline trailer
+
+  character_cue   := hspace+ schar+ nline
+
+  dialog          := hspace+ (char - '(') schar* nline
+
+  insert          := hspace+ schar+ nline trailer
+
+  montage_item    := [A-Z] ') ' schar* nline trailer
+
+  montage_heading := ('MONTAGE' | 'SERIES OF SHOTS') schar* nline trailer
+
+  parenthetical   := hspace+ '(' schar+ ')' trailer
+
+  scene_heading   := char schar* nline trailer
+
+  slug_line       := [A-Z] [A-Z0-9!-/:-@[-`{-~ ]* trailer trailer
+
+  transition      := hspace+ [A-Z] ([A-Z ]* [A-Z])? [:.] trailer trailer
+
+  title_page      := tp_line (tp_line tp_line*)? trailer+
+
+  tp_line         := hspace+ char schar* nline
+
+  trailer         := hspace* nline
+
+  schar           := char | hspace
+
+  hspace          := [ \t]
+
+  nline           := '\r\n' | '\n'
+
+  char            := any - space
+
+  space           := [\t\v\f\n\r ]
+
+  any              = any character
+
+
+== Configuration
+
+Eleanor uses YAML[http://www.yaml.org] to store user configurations.  (Ruby
+and YAML are like peas and carrots.)  Here's a YAML fragment that sets scene
+heading options:
+
+  SceneHeading:
+    can_break_across_pages:  false
+    keep_with_nexts:         [Action, CharacterCue]
+    limit_to_one_line:       true
+    margin_bottom:           1.lines
+    margin_left:             1.5.inches
+    margin_top:              |
+      (@is_first_on_page ? 0 : 2).lines
+    width:                   6.inches
+
+Options make extensive use of the Length subclasses, which let you to specify
+lengths in inches, points, or lines.  See Length for more info.
+
+=== Configurations Create Class Methods
+
+You can set options for any class in the Eleanor namespace this way.  In fact,
+each option dynamically adds a class method that returns the value of the
+option.  So, with the above YAML, you could evaluate the following for
+example:
+
+  Eleanor::SceneHeading.keep_with_nexts # => ['Action', 'CharacterCue']
+  Eleanor::SceneHeading.margin_left     # => #<Inches:0x7ff16768 @val=1.5>
+
+=== Configurations Create Instance Methods
+
+You might notice that the values of margin_bottom, margin_left, margin_top,
+and width are actually strings.  There's one other level of metaprogramming
+going on here: in addition to defining a class method, each option also defines
+an instance method.  If the value of the option is a string, this method
+<b>nakedly evals</b> the string in the context of the Eleanor object; otherwise
+the method just returns the value.  Note the <b>naked eval</b> part.  Don't
+go sticking system('rm -rf /') in your options unless you hate yourself.
+
+Anyway, this is why values like "1.5.inches" work; when the string "1.5.inches"
+is eval'ed by Eleanor, it yields an Inches object.  But the more interesting
+example above is the value of margin_top.  All paragraphs have a member
+@is_first_on_page, and margin_top uses it to dynamically determine the top
+margin for scene headings.
+
+=== Configuration Files on the Command Line
+
+When you run Eleanor from the command line, it checks for a config file in the
+following locations, in this order:
+
+1. The value of the --config switch.
+
+2. $HOME/.eleanorrc, where $HOME is the output of
+
+    ruby -e "p ENV['HOME']"
+
+3. $DATADIR/eleanor/eleanor.yaml.  This file is created if you install Eleanor
+   to site_ruby.  $DATADIR is the output of
+
+    ruby -e "p Config::CONFIG['datadir']"
+
+4. $PACKAGEDIR/data/eleanor/eleanor.yaml, where $PACKAGEDIR is the directory in
+   which you've extracted the Eleanor package either manually or by installing
+   via RubyGems.
+
+You can see which file will be used by default by running eleanor with --help
+or no options and checking the --config switch.
+
+=== List of Configuration Options
+
+An Eleanor configuration is a YAML hash whose keys are the names of Eleanor
+classes.  The hash's values are themselves hashes of options which apply to the
+classes they're under.  See the SceneHeading fragment above.
+
+All options are required.  Options set for superclasses (e.g., Paragraph)
+apply to subclasses (e.g., Action, CharacterCue, Dialog, etc.) unless
+specifically overridden by subclass options.
+
+==== Screenplay
+
+[char_spacing]
+  A Length.
+[font]
+  Either a font name recognized by libHaru (e.g., Courier, Helvetica) or a path
+  to a TTF on disk.
+[font_size]
+  A Length.
+[line_height_points]
+  A Numeric in points, e.g., 12.  Not a Length.
+
+==== Page
+
+[header]
+  Heading text to appear centered at the top of the page.  Should be either nil
+  or a string.
+[header_margin_top]
+  Distance from the top of the page that the header will be written.  This is
+  independent of margin_top.  A Length.
+[height]
+  Page height.  A Length.
+[margin_bottom]
+  The page's bottom margin.  A Length.
+[margin_top]
+  The page's top margin.  This is independent of header_margin_top.  A Length.
+[page_number_display]
+  A string that will be written as the page number.  Practically this should be
+  a string to be eval'ed, and the code probably should make use of the page's
+  @page_no member (also available as an attribute reader), e.g., "#@page_no.".
+  May also be nil.
+[page_number_margin_right]
+  Page numbers are flushed right at this margin.  A Length.
+[page_number_margin_top]
+  The top margin of the page number.  This is independent of header_margin_top
+  and margin_top.  A Length.
+[width]
+  Page width.  A Length.
+
+==== TitlePage
+
+The options set for Page apply to TitlePage as well, unless overridden.  In
+addition, title pages have the option:
+
+[margin_left]
+  The author's contact information is set off from the very left side of the
+  paper by this Length.
+
+==== Paragraph
+
+The values set for Paragraph apply to all types of paragraphs (which is to say,
+Eleanor::Paragraph subclasses) unless overridden by the specific types.
+
+[align]
+  "left" if the paragraph flushes left, "center" if each line in the paragraph
+  is centered, and "right" if the paragraph flushes right.  (Really only
+  transitions should be flushed right, and no paragraph should be centered.)
+[can_break_across_pages]
+  True if the paragraph can be split at a page break and false if not.
+[keep_with_nexts]
+  If specified directly in the YAML, this should be an array of paragraph types.
+  No page breaks will be allowed between the type of paragraph in which this
+  option occurs and any of the types in the array.  Example: CharacterCue would
+  have this set to [Dialog, Parenthetical].  If specified as a string to be
+  eval'ed, this option should yield true or false.  The code will have variable
+  +next_para+ available to it.
+[limit_to_one_line]
+  True if the paragraph must be no more than one line, false otherwise.
+[margin_bottom]
+  The amount of blank space that should appear below the paragraph.  A Length.
+[margin_left]
+  The paragraph is offset from the very left side of the paper by this Length.
+[margin_top]
+  The amount of blank space that should appear above the paragraph.  A Length.
+  If this is a string to be eval'ed, the code may have variable +prev_para+
+  available to it, depending on the context in which it's called.  Use
+  defined?(prev_para) to test whether it does.
+[min_orphan_lines_allowed]
+  Used when deciding how to split the paragraph across a page break.  At least
+  this number of lines must be left on the first page for the split to be
+  allowed.  An Integer >= 1.
+[min_orphan_sentences_allowed]
+  Used when deciding how to split the paragraph across a page break.  At least
+  this number of sentences must be left on the first page for the split to be
+  allowed.  An Integer >= 1.
+[min_widow_lines_allowed]
+  Used when deciding how to split the paragraph across a page break.  At least
+  this number of lines must be pushed to the second page for the split to be
+  allowed.  An Integer >= 1.
+[min_widow_sentences_allowed]
+  Used when deciding how to split the paragraph across a page break.  At least
+  this number of sentences must be pushed to the second page for the split to be
+  allowed.  An Integer >= 1.
+[text]
+  When this is set the parsed text of the paragraph is ignored, and this text is
+  used instead.  Really only useful for Eleanor::More, e.g., "(MORE)".
+[width]
+  The paragraph will be no wider than this Length.
+
+==== CharacterCue
+
+A couple of special options:
+
+[continuation_modifier]
+  When consecutive character cues in a scene refer to the same character, this
+  string appears in parentheses next to those cues except the first, e.g.,
+  "CONT'D".  May be nil.
+[widow_modifier]
+  When dialog is split across a page break, a character cue is inserted at the
+  top of the second page.  This string appears in parentheses next to that cue,
+  e.g., "CONT'D".  May be nil.
+
+
+== Prior Art
+
+There are many existing software solutions for generating screenplays.  They
+fall broadly into three categories (I leave out ad-hoc methods, which are too
+awful to contemplate):
+
+* Professional screenwriting software.  Surely the best option if
+  you're a professional or if you've got the scratch to pay for it.  Advantages
+  include WYSIWYG editing and all the benefits concomitant with using the
+  same tools that other professionals use.
+* Free screenwriting software.  Not so many options here.  Some good,
+  some bad, some open source, some trialware, some even Web-based.  Many do not
+  output PDF or require you to jump through hoops to do so.
+* Templates.  There are numerous Microsoft Word templates, OpenOffice
+  templates, TeX macro packages, and even an Emacs mode on teh Intarwebs.  I
+  haven't found one that adheres completely to convention and doesn't produce
+  amateurish results, but I haven't looked hard, either.
+
+A roundup of software can be found at
+http://en.wikibooks.org/wiki/Movie_Making_Manual-Screenplay_Format.
+
+
+== Contact
+
+Copyright (c) 2008 chiisaitsu <chiisaitsu@gmail.com>
+
+http://rubyforge.org/projects/eleanor
+
+
+== License
+
+See file LICENSE accompanying this package.

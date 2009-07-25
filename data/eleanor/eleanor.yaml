@@ -1,0 +1,165 @@
+# This is Eleanor's default configuration file.  It's written in YAML.
+# You shouldn't modify it.  Instead, pass your own to Eleanor's command line
+# with the --config option.  Or, for a more permanent solution, create your own
+# file $HOME/.eleanorrc, where $HOME is the output of
+#
+#   ruby -e "p ENV['HOME']"
+#
+# Eleanor will use that file instead.
+
+---
+Screenplay:
+  char_spacing:                 -0.195.points
+  font:                         Courier
+  font_size:                    12.points
+  line_height_points:           12
+
+Page:
+  header:                       |
+    @page_no == 1 ? @screenplay.title : nil
+  header_margin_top:            0.5.inches
+  height:                       11.inches
+  margin_bottom:                1.inches
+  margin_top:                   1.inches
+  page_number_display:          |
+    @page_no > 1 ? "#@page_no." : nil
+  page_number_margin_right:     1.25.inches
+  page_number_margin_top:       0.5.inches
+  width:                        8.5.inches
+
+TitlePage:
+  margin_bottom:                1.5.inches
+  margin_left:                  1.inches
+  margin_top:                   2.5.inches
+
+Paragraph:
+  can_break_across_pages:       false
+  align:                        left
+  keep_with_nexts:              []
+  min_orphan_lines_allowed:     2
+  min_orphan_sentences_allowed: 2
+  min_widow_lines_allowed:      2
+  min_widow_sentences_allowed:  2
+
+Action:
+  can_break_across_pages:       true
+  keep_with_nexts:              [Insert]
+  limit_to_one_line:            false
+  margin_bottom:                1.lines
+  margin_left:                  1.5.inches
+  margin_top:                   |
+    if @is_first_on_page
+      (@split_state == :widow ? -1 : 0).lines
+    else
+      1.lines
+    end
+  width:                        6.inches
+
+CharacterCue:
+  continuation_modifier:        CONT'D
+  keep_with_nexts:              [Dialog, Parenthetical]
+  limit_to_one_line:            true
+  margin_bottom:                0.lines
+  margin_left:                  3.5.inches
+  margin_top:                   |
+    if @is_first_on_page
+      (@split_state == :widow ? -1 : 0).lines
+    else
+      1.lines
+    end
+  widow_modifier:               CONT'D
+  width:                        3.75.inches
+
+Dialog:
+  can_break_across_pages:       true
+  keep_with_nexts:              |
+    next_para.is_a?(Parenthetical) && @sentences.size == 1
+  limit_to_one_line:            false
+  margin_bottom:                0.lines
+  margin_left:                  2.5.inches
+  margin_top:                   0.lines
+  width:                        3.5.inches
+
+Insert:
+  limit_to_one_line:            false
+  margin_bottom:                1.lines
+  margin_left:                  2.5.inches
+  margin_top:                   1.lines
+  width:                        3.5.inches
+
+MontageHeading:
+  keep_with_nexts:              [MontageItem]
+  limit_to_one_line:            true
+  margin_bottom:                1.lines
+  margin_left:                  1.5.inches
+  margin_top:                   |
+    (@is_first_on_page ? 0 : 2).lines
+  width:                        6.inches
+
+MontageItem:
+  limit_to_one_line:            false
+  margin_bottom:                1.lines
+  margin_left:                  1.5.inches
+  margin_top:                   |
+    (@is_first_on_page ? 0 : 1).lines
+  width:                        6.inches
+
+More:
+  limit_to_one_line:            true
+  margin_bottom:                0.lines
+  margin_left:                  3.5.inches
+  margin_top:                   0.lines
+  text:                         (MORE)
+  width:                        2.5.inches
+
+Parenthetical:
+  keep_with_nexts:              [Dialog]
+  limit_to_one_line:            false
+  margin_bottom:                0.lines
+  margin_left:                  2.9.inches
+  margin_top:                   0.lines
+  width:                        2.5.inches
+
+SceneHeading:
+  keep_with_nexts:              [Action, CharacterCue]
+  limit_to_one_line:            true
+  margin_bottom:                1.lines
+  margin_left:                  1.5.inches
+  margin_top:                   |
+    if defined?(prev_para) &&
+       (prev_para.is_a?(Transition) ||
+        (prev_para.is_a?(SlugLine) &&
+         /BEGIN FLASHBACK/i =~ prev_para.input_line))
+      1.lines
+    else
+      (@is_first_on_page ? 0 : 2).lines
+    end
+  width:                        6.inches
+
+SlugLine:
+  keep_with_nexts:              |
+    case next_para
+    when Action, Insert
+      true
+    when SceneHeading
+      /BEGIN FLASHBACK/i =~ @input_line ? true : false
+    else
+      false
+    end
+  limit_to_one_line:            true
+  margin_bottom:                1.lines
+  margin_left:                  1.5.inches
+  margin_top:                   |
+    (@is_first_on_page ? 0 : 1).lines
+  width:                        6.inches
+
+Transition:
+  align:                        |
+    /FADE IN/i =~ @input_line ? 'left' : 'right'
+  limit_to_one_line:            true
+  margin_bottom:                1.lines
+  margin_left:                  1.5.inches
+  margin_right:                 1.25.inches
+  margin_top:                   |
+    (@is_first_on_page ? 0 : 1).lines
+  width:                        1.63.inches

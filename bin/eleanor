@@ -1,0 +1,127 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2008 chiisaitsu <chiisaitsu@gmail.com>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+begin
+  require 'eleanor'
+rescue LoadError
+  $LOAD_PATH << File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
+  require 'eleanor'
+end
+
+require 'optparse'
+
+usr_config_fn= File.join(ENV['HOME'] || '', '.eleanorrc')
+sys_config_fn= File.join(Config::CONFIG['datadir'], 'eleanor', 'eleanor.yaml')
+rel_config_fn= File.expand_path(File.join(File.dirname(__FILE__), '..',
+                                          'data', 'eleanor', 'eleanor.yaml'))
+
+conf= {
+  :paper  => 'eleanor/hpdfpaper',
+  :config => if File.exist? usr_config_fn
+               usr_config_fn
+             elsif File.exist? sys_config_fn
+               sys_config_fn
+             elsif File.exist? rel_config_fn
+               rel_config_fn
+             else
+               nil
+             end
+}
+
+options= OptionParser.new do |opts|
+  opts.banner= "usage: #{File.basename($0)} [options] screenplay.txt"
+  opts.separator('')
+  opts.separator('  Options:')
+  opts.on('-c', '--config FILE',
+          'Load configuration from FILE',
+          "(default: #{conf[:config] || 'none'})") do |val|
+    conf[:config]= val
+  end
+  opts.on('-d', '--dump-pages', 'Print paginated screenplay to stdout') do |val|
+    conf[:dump_pages]= val
+  end
+  opts.on('--dump-paras', 'Print non-paginated paragraphs to stdout') do |val|
+    conf[:dump_paras]= val
+  end
+  opts.on('-h', '--help', 'Show this message') do
+    puts opts
+    exit
+  end
+  opts.on('-o', '--output FILE',
+          'Set output FILE (default: screenplay.pdf)') do |val|
+    conf[:outfile]= val
+  end
+  opts.on('--paginate', 'Stop after pagination') do |val|
+    conf[:paginate]= val
+  end
+  opts.on('--paper  FILE',
+          'Set backend to FILE', "(default: #{conf[:paper]})") do |val|
+    conf[:paper]= val
+  end
+  opts.on('--parse', 'Stop after parsing') do |val|
+    conf[:parse]= val
+  end
+  opts.on('-v', '--verbose', 'Print working info to stderr') do |val|
+    conf[:verbose]= val
+  end
+  opts.on_tail('')
+  opts.on_tail('  Examples:',
+               "    #{File.basename($0)} screenplay.txt",
+               "    #{File.basename($0)} -o finaldraft.pdf screenplay.txt")
+end
+
+begin
+  options.parse!
+  raise OptionParser::ParseError unless ARGV.size == 1
+rescue OptionParser::ParseError
+  puts options
+  exit
+end
+
+if conf[:config].nil?
+  abort "error: No configuration file found.  Reinstall #{Eleanor::NAME} " \
+        "or load a configuration file with --config."
+end
+
+begin
+  require conf[:paper]
+rescue LoadError
+  abort "error: Could not load backend.  The string you specify will be " \
+        "passed to 'require'."
+end
+Eleanor.load_config(conf[:config])
+infile= ARGV.shift
+screenplay= Eleanor.parse(infile)
+
+if screenplay
+  $stderr.puts "parsing complete" if conf[:verbose]
+  puts screenplay.to_s(false) if conf[:dump_paras]
+  exit if conf[:parse]
+  screenplay.paginate!
+  $stderr.puts "pagination complete" if conf[:verbose]
+  puts screenplay if conf[:dump_pages]
+  exit if conf[:paginate]
+  screenplay.write_to_paper!
+  screenplay.save_paper(conf[:outfile], infile)
+else
+  abort 'error: parsing failed'
+end
